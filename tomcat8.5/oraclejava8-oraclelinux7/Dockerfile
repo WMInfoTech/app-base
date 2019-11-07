@@ -81,7 +81,8 @@ ENV XMS=2g XMX=4g BANNERDB_JDBC=jdbc:oracle:thin:@//oracle.example.edu:1521/prod
   REMOVE_ABANDONED_ON_BORROW=true \
   REMOVE_ABANDONED_TIMEOUT=2100 \
   LOG_ABANDONED=true \
-  DEFAULT_ROW_PREFETCH=150
+  DEFAULT_ROW_PREFETCH=150 \
+  JMX_EXPORTER_CONFIG=/usr/local/tomcat/conf/tomcat_jmx_exporter.yaml
 
 ENV CATALINA_OPTS="-server -Xms\$XMS -Xmx\$XMX -Duser.timezone=\$TIMEZONE -Doracle.jdbc.autoCommitSpecCompliant=false"
 
@@ -91,6 +92,7 @@ RUN curl -fSL https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch
   && rm -rf /var/cache/yum
 ADD https://developer.byu.edu/maven2/content/groups/thirdparty/com/oracle/ojdbc7/12.1.0.2/ojdbc7-12.1.0.2.jar /usr/local/tomcat/lib/ojdbc7.jar
 ADD https://developer.byu.edu/maven2/content/groups/thirdparty/com/oracle/xdb6/12.1.0.2/xdb6-12.1.0.2.jar /usr/local/tomcat/lib/xdb6.jar
+ADD https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/0.12.0/jmx_prometheus_javaagent-0.12.0.jar /usr/local/tomcat/lib/jmx_exporter.jar
 
 RUN cd /usr/local/tomcat/lib/ \
   && curl https://developer.byu.edu/maven2/content/groups/thirdparty/com/oracle/ojdbc7/12.1.0.2/ojdbc7-12.1.0.2.jar.sha1 --output ojdbc7.jar.sha1 \
@@ -99,11 +101,17 @@ RUN cd /usr/local/tomcat/lib/ \
   && curl https://developer.byu.edu/maven2/content/groups/thirdparty/com/oracle/xdb6/12.1.0.2/xdb6-12.1.0.2.jar.sha1 --output xdb6.jar.sha1 \
   && echo -n " xdb6.jar" >> xdb6.jar.sha1 \
   && sha1sum -c xdb6.jar.sha1 \
+  && curl https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/0.12.0/jmx_prometheus_javaagent-0.12.0.jar.sha1 --output jmx_exporter.jar.sha1 \
+  && echo -n " && curl https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/0.12.0/jmx_prometheus_javaagent-0.12.0.jar.sha1 --output jmx_exporter.jar.sha1 \
+  && echo -n " jmx_exporter.jar" >> jmx_exporter.jar.sha1 \
+  && sha1sum -c jmx_exporter.jar.sha1 \ jmx_exporter.jar" >> jmx_exporter.jar.sha1 \
+  && sha1sum -c jmx_exporter.jar.sha1 \
   && rm *.sha1 \
   && chown tomcat:tomcat ojdbc7.jar xdb6.jar && chmod +r ojdbc7.jar xdb6.jar
 
 COPY context.xml /usr/local/tomcat/conf/context.xml
 COPY server.xml /usr/local/tomcat/conf/server.xml
+COPY tomcat_jmx_exporter.yaml /usr/local/tomcat/conf/tomcat_jmx_exporter.yaml
 COPY run.sh /usr/local/tomcat/bin
 
 # Configure logging to forward tomcat logs to docker log collector

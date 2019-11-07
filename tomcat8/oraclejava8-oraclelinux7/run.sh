@@ -114,4 +114,8 @@ if [ -n "$JMX_PORT" ]; then
   export CATALINA_OPTS="$CATALINA_OPTS -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=$JMX_PORT -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false"
 fi
 
+if [ -n "$PROMETHEUS_JMX_PORT" ]; then
+  export CATALINA_OPTS="$CATALINA_OPTS -javaagent:/usr/local/tomcat/lib/jmx_exporter.jar=$PROMETHEUS_JMX_PORT:$JMX_EXPORTER_CONFIG"
+fi
+
 exec catalina.sh run

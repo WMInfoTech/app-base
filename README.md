@@ -90,3 +90,19 @@ log.abandoned = true
 cas.url = https://cas.local.com/cas
 banner9.url = https://banner9.school.edu
 ```
+
+## Monitoring
+
+JMX can be enabled by setting the `JMX_PORT` environment variable.
+
+### Prometheus
+
+If you'd prefer to directly expose metrics in a format that Prometheus
+can scrape, set the `PROMETHEUS_JMX_PORT` environment variable to the
+port number you'd like for the
+[JMX exporter](https://github.com/prometheus/jmx_exporter) to listen on.
+
+The [example tomcat config file](https://github.com/prometheus/jmx_exporter/blob/master/example_configs/tomcat.yml)
+is included in the image, but it can over overriden by setting the
+`JMX_EXPORTER_CONFIG` environment variable to the location of the config
+file you'd like to use.
