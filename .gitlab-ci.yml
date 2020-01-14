@@ -24,8 +24,8 @@ build_head_alpine:
   only:
     refs:
       - wm
-    changes:
-      - tomcat8.5/jre8-alpine/*
+    # changes:
+    #   - tomcat8.5/jre8-alpine/*
   tags:
     - docker
   stage: build
@@ -61,8 +61,8 @@ build_head_oracle:
   only:
     refs:
       - wm
-    changes:
-      - tomcat8.5/oraclejava8-oraclelinux7/*
+    # changes:
+    #   - tomcat8.5/oraclejava8-oraclelinux7/*
   tags:
     - docker
   stage: build
