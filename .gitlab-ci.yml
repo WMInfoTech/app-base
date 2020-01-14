@@ -1,0 +1,77 @@
+---
+stages:
+  - build
+
+## Build alpine
+
+build_release_alpine:
+  only:
+    - tags
+  tags:
+    - docker
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - cd tomcat8.5/jre8-alpine
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build -t $CI_REGISTRY_IMAGE:tomcat8.5-alpine-$CI_COMMIT_TAG .
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
+
+build_head_alpine:
+  only:
+    refs:
+      - wm
+    changes:
+      - tomcat8.5/jre8-alpine/*
+  tags:
+    - docker
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - cd tomcat8.5/jre8-alpine
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build -t $CI_REGISTRY_IMAGE:tomcat8.5-alpine-latest .
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker push $CI_REGISTRY_IMAGE:latest
+
+## Build Oracle Java/Linux
+
+build_release_oracle:
+  only:
+    - tags
+  tags:
+    - docker
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - cd tomcat8.5/oraclejava8-oraclelinux7
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build -t $CI_REGISTRY_IMAGE:tomcat8.5-oracle-$CI_COMMIT_TAG .
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
+
+build_head_oracle:
+  only:
+    refs:
+      - wm
+    changes:
+      - tomcat8.5/oraclejava8-oraclelinux7/*
+  tags:
+    - docker
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - cd tomcat8.5/oraclejava8-oraclelinux7
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build -t $CI_REGISTRY_IMAGE:tomcat8.5-oracle-latest .
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker push $CI_REGISTRY_IMAGE:latest
