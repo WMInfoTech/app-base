@@ -15,7 +15,7 @@ setProperty() {
   prop=$1
   val=$2
 
-  if[ $( ls -1 /usr/local/tomcat/webapps/*/WEB-INF/web.xml | wc -l) -gt 0 ];
+  if[ $( ls -1 /usr/local/tomcat/webapps/*/WEB-INF/web.xml | wc -l) -gt 0 ]; then
     if [ "$prop" = "banner9.baseurl" ]; then
       for settings_file in /usr/local/tomcat/webapps/*/WEB-INF/web.xml; do
         xml ed  --inplace -N x="http://java.sun.com/xml/ns/javaee" -u "/x:web-app/x:filter[x:filter-name[normalize-space(text())='CAS Validation Filter']]/x:init-param[x:param-name[normalize-space(text())='serverName']]/x:param-value" -v "$val" "$settings_file"
