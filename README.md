@@ -1,46 +1,38 @@
-# Bandock Banner 9 Self Service Base
+# Banner 9 Self Service Base
 
-Banner 9 Self Service Base is a base image to build the Banner 9 self service application on.  Variables can be added from ENV, config file or docker secrets. 
+Banner 9 Self Service Base is a base image to build the Banner 9 self service application on
+top of.
 
-## Tags
+The intent is that images built on this base will be portable across production, test, and
+development instance of your install. We attempt to set everything required by Tomcat, and
+some settings that are contained in your war file, typically those found in xml files.
 
-https://hub.docker.com/r/edurepo/banner9-selfservice/
-
-Tomcat 8
-
-- tomcat8-jre8-alpine
-- tomcat8-oraclejava8-oraclelinux7
-
-Tomcat 8.5
-
-- tomcat8.5-jre8-alpine
-- tomcat8.5-oraclejava8-oraclelinux7
+If a setting exists in a groovy file, we suggest you have Groovy fetch an environment
+variable that's set by your container orchestrator.
 
 ## How to use
 
-This base image is designed to have Banner 9 applications built on it. It is built for those applciations that require both banproxy and ban_ss_user or commonly referred to as the self service apps.  Multiple builds are available.  At a minimum both builds of alpine and oracle linux will be available.  Alpine for its small size and oracle linux for Banner support compliance.
+Copy extracted war files to `/usr/local/tomcat/webapps/`, where application.war becomes
+`webapps/application`. Copy groovy files to whatever location you've configured your war
+file to use.
 
-Properties can be loaded from multiple sources: environment variables, docker secrets, config file or combination of sources. They are appended to catalina.properties before tomcat starts. For tomcat to function the following properties need to be set: bannerdb.jdbc, banproxy.username, banproxy.username, banproxy.initialsize, banproxy.maxtotal, banproxy.maxidle, banproxy.maxwait, banssuser.username, banssuser.password, banssuser.initialsize, banssuser.maxtotal, banssuser.maxidle, banssuser.maxwait, cas.url, banner9.url. If they are not configued default values will be set from environment variables from the Dockerfile.
+A Dockerfile might look like
+```Dockerfile
+FROM app-base
 
-## Examples
+COPY --chown=tomcat:tomcat application /usr/local/tomcat/webapps/application/
+COPY *.groovy /app_config/
+```
 
-There are example of banner 9 self service apps with environment variables, external config files, and internal config files using environment variables in the folder examples.
+Properties used by Tomcat can be loaded from environment variables or files
+(typically provided by your orchestrator as configs or secrets). The settings
+required by Tomcat for JNDI connections are appended to catalina.properties before Tomcat starts.
 
-- StudentRegistrationSSB - external config
-- StudentRegistrationSSB - config files using internal variables
-- ApplicationNavigator - config files using env variables
+If you don't set something, the default values from the Dockerfile are used.
 
-### Properties from Environment Variables
+### Environment Variable Defaults
 
-Environment variables are used to setup the base parameters for tomcat to connect to the database. They are set as environment variables so that the base image can be used in different Banner instances.
-
-### Defaults
-
-If an environment variable is not specified at runtime then the defaults for that variable will be used.  At a minimum BANNERDB_JDBC, BANPROXY_PASSWORD,  BANSSUSER_PASSWORD, CAS_URL and BANNER9_URL need to be set. It is highly recommended setting the TIMEZONE to the timezone of your Banner database.
-
-### Environment Variables
-
-```Shell
+```shell
 TIMEZONE -  default: America/New_York
 XMS - default: 2g
 XMX - default: 4g
@@ -65,11 +57,13 @@ CAS_URL - default: https://cas.local.com/cas
 BANNER9_URL - default: https://banner9.school.edu
 ```
 
-### Properties from Config file
+### Loading Properties from Config file
 
-When loading from a config file, defaults are ignored and all parameters will need to be set in the file.
+When loading from a config file, set the environment variable `CONFIG_FILE` to the location
+of the configuration file, from there all other environment variables will be ignored by run.sh,
+but can be used by your custom application config files.
 
-```Shell
+```shell
 bannerdb.jdbc = jdbc:oracle:thin:@//oracle.example.edu:1521/prod
 banproxy.username = banproxy
 banproxy.username = password

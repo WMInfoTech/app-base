@@ -22,8 +22,6 @@ build_release_alpine:
 
 build_head_alpine:
   only:
-    refs:
-      - wm
     changes:
       - tomcat8.5/jre8-alpine/*
   tags:
