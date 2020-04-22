@@ -14,7 +14,7 @@ build_release_alpine:
   services:
     - docker:dind
   script:
-    - cd tomcat8.5/jre8-alpine
+    - cd tomcat8.5
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - docker build -t $CI_REGISTRY_IMAGE:tomcat8.5-alpine-$CI_COMMIT_TAG .
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
@@ -23,7 +23,7 @@ build_release_alpine:
 build_head_alpine:
   only:
     changes:
-      - tomcat8.5/jre8-alpine/*
+      - tomcat8.5/*
   tags:
     - docker
   stage: build
@@ -31,9 +31,43 @@ build_head_alpine:
   services:
     - docker:dind
   script:
-    - cd tomcat8.5/jre8-alpine
+    - cd tomcat8.5
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - docker build -t $CI_REGISTRY_IMAGE:tomcat8.5-alpine-latest .
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - docker push $CI_REGISTRY_IMAGE:tomcat8.5-alpine-latest
+
+
+build_release_slim:
+  only:
+    - tags
+  tags:
+    - docker
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - cd tomcat8.5
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build -t $CI_REGISTRY_IMAGE:tomcat8.5-slim-$CI_COMMIT_TAG -f Dockerfile.slim .
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker push $CI_REGISTRY_IMAGE:tomcat8.5-slim-$CI_COMMIT_TAG
+
+build_head_slim:
+  only:
+    changes:
+      - tomcat8.5/*
+  tags:
+    - docker
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - cd tomcat8.5/
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build -t $CI_REGISTRY_IMAGE:tomcat8.5-slim-latest -f Dockerfile.slim .
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker push $CI_REGISTRY_IMAGE:tomcat8.5-slim-latest
 

@@ -10,6 +10,11 @@ some settings that are contained in your war file, typically those found in xml 
 If a setting exists in a groovy file, we suggest you have Groovy fetch an environment
 variable that's set by your container orchestrator.
 
+## Image Variations
+
+We have build files for an alpine and a Debian slim based release. Alpine is smaller, but
+likely doesn't have an up to date version of OpenJDK ready to use.
+
 ## How to use
 
 Copy extracted war files to `/usr/local/tomcat/webapps/`, where application.war becomes
